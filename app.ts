@@ -163,12 +163,24 @@ setInterval(async () => {
   ) {
     const shuffle = await shuffleDocRef.get()
     const shuffleData = shuffle.data() as Shuffle
+    const dates = shuffleData.dates
     const memberMap = shuffleData.members
-    reporter.forEach(member => {
+    const date = dates[dates.length - 1].toDate().toString()
+    reporter.forEach(async member => {
+      let memberDoc = await db
+        .collection("members")
+        .doc(member)
+        .get()
+      let memberData = memberDoc.data() as MemberData
       bot.sendMessage(
         memberNameChatIdMap[member],
         `Hey there, hope you are doing well. Your source for the week is ${memberMap[member]}!
 Please use the /report command to send in your report.`
+      )
+      bot.sendMessage(
+        memberNameChatIdMap[member],
+        `Here's what your source planed to do for last week,you can use it to evaluate ${memberMap[member]}'s work and help to improve!\n ${memberData[date].future} `
+
       )
     })
   }
