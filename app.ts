@@ -165,7 +165,7 @@ setInterval(async () => {
     const shuffleData = shuffle.data() as Shuffle
     const dates = shuffleData.dates
     const memberMap = shuffleData.members
-    const date = dates[dates.length - 1].toDate().toString()
+    const date = dates[dates.length - 2].toDate().toString()
     reporter.forEach(async member => {
       let memberDoc = await db
         .collection("members")
