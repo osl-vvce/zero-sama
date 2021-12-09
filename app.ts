@@ -120,7 +120,7 @@ setInterval(() => {
           { merge: true }
         )
         db.collection("members")
-        doc("sourceStatus")
+        .doc("sourceStatus")
         .update(
         {
           reporter: false
