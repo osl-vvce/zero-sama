@@ -205,7 +205,7 @@ setInterval(async () => {
         const optKeyboard: telegramBot.SendMessageOptions = {
           parse_mode: "Markdown",
           reply_markup: {
-            keyboard: [[{ text: "Source Did not respond yet" }], [{ text: "Did not asked the report yet" }]]
+            keyboard: [[{ text: "yes" }], [{ text: "no" }]]
           }
         }
         const optRemove: telegramBot.SendMessageOptions = {
@@ -215,7 +215,7 @@ setInterval(async () => {
         }
         await bot.sendMessage(
           memberNameChatIdMap[reporterName],
-          `Just in case your source didn't show up, let us know.`,
+          `Did your source respond yet`,
           optKeyboard
         )
         var chatId = parseInt(memberNameChatIdMap[reporterName])
