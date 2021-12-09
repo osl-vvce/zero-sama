@@ -220,7 +220,7 @@ setInterval(async () => {
         )
         var chatId = parseInt(memberNameChatIdMap[reporterName])
         responseCallbacks[chatId] = async response => {
-          var status = (response.text == "Source Did not respond yet") ? true : false
+          var status = (response.text == "no") ? true : false
           db.collection("members")
             .doc("sourceStatus")
             .update({
