@@ -119,6 +119,12 @@ setInterval(() => {
           },
           { merge: true }
         )
+        db.collection("members")
+        .doc("sourceStatus")
+        .update(
+        {
+          reporter: false
+        })
     }
   }
 }, 1000 * 60)
@@ -196,6 +202,37 @@ setInterval(async () => {
       let memberData = memberDoc.data() as MemberData
       if (memberData[date].timeStamp === undefined) {
         let reporterName = memberData[date].reporter
+        const optKeyboard: telegramBot.SendMessageOptions = {
+          parse_mode: "Markdown",
+          reply_markup: {
+            keyboard: [[{ text: "yes" }], [{ text: "no" }]]
+          }
+        }
+        const optRemove: telegramBot.SendMessageOptions = {
+          reply_markup: {
+            remove_keyboard: true
+          }
+        }
+        await bot.sendMessage(
+          memberNameChatIdMap[reporterName],
+          `Did your source respond yet`,
+          optKeyboard
+        )
+        var chatId = parseInt(memberNameChatIdMap[reporterName])
+        responseCallbacks[chatId] = async response => {
+          var status = (response.text == "no") ? true : false
+          db.collection("members")
+            .doc("sourceStatus")
+            .update({
+              reporterName: status
+            }
+            )
+          bot.sendMessage(
+            memberNameChatIdMap[reporterName],
+            `Alright, Thanks!`,
+            optRemove
+          )
+        }
         bot.sendMessage(
           memberNameChatIdMap[reporterName],
           `Hey there, This is a gentle reminder. Please submit your report soon using the /report command.`
@@ -223,6 +260,15 @@ setInterval(async () => {
       for (let idx = 0; idx < source.length; idx++) {
         let member = source[idx]
         const membersData = await db.collection("members").doc(member).get()
+        var sources = await db.collection("members")
+          .doc("sourceStatus")
+          .get()
+          .then( query => {
+          query._fieldsProto[source[idx]].booleanValue
+          })
+
+        sources && sourceNames.push(source[idx])
+
         const memberData = membersData.data() as MemberData
         if (memberData[date].timeStamp === undefined) {
           reporterNames.push(memberData[date].reporter)
@@ -238,6 +284,10 @@ setInterval(async () => {
       bot.sendMessage(
         oslGroupId,
         `Those who have not submitted the report yet:\n${reporterNames.join(
+          "\n"
+        )}
+        \n\n
+        Those who did not respond to their reporters yet:\n${sourceNames.join(
           "\n"
         )}`
       )
